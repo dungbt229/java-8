@@ -214,17 +214,31 @@ public class StreamsTest {
 	AtomicLong count = new AtomicLong();
 	Double average = sequence.stream().reduce(0D, (result, element) -> result += element / count.incrementAndGet() - result / count.get());
 
-	Assert.assertThat(average, Matchers.closeTo(expected, 0.0001D));
+	Assert.assertThat(average, closeTo(expected, 0.0001D));
     }
 
 
     /**
-     * TODO: It should be possible to concurrently collect stream results in a single ArrayList, instead of merging multiple array lists, provided it has been
-     * constructed with the stream’s size, since concurrent set operations at disjoint positions are threadsafe. How can you achieve that?
+     * It should be possible to concurrently collect stream results in a single ArrayList, instead of merging multiple array lists, provided it has been
+     * constructed with the stream’s size, since concurrent set operations at disjoint positions are thread safe. How can you achieve that?
      */
-    // @Test
+    @Test
     public void test11() {
+	int size = 1000;
 
+	// Assuming that we know the size of the stream, prepare the ArrayList to hold elements
+	List<Integer> list = new ArrayList<Integer>(size);
+	for (int i = 0; i < size; i++) {
+	    list.add(null);
+	}
+
+	// Collect elements to an ArrayList concurrently
+	AtomicInteger index = new AtomicInteger();
+	IntStream.rangeClosed(1, size).parallel().boxed().collect(() -> null, (x, y) -> list.set(index.getAndIncrement(), y), (a, b) -> {});
+
+	// Verify that list contains all the elements
+	Assert.assertThat(list, hasSize(size));
+	Assert.assertThat(list, Matchers.containsInAnyOrder(IntStream.rangeClosed(1, size).boxed().toArray(Integer[]::new)));
     }
 
     /**
