@@ -17,11 +17,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -209,7 +207,7 @@ public class StreamsTest {
     @Test
     public void test10() {
 	List<Double> sequence = Stream.generate(Math::random).limit(20).collect(toList());
-	Double expected = sequence.stream().collect(Collectors.averagingDouble(x -> x));
+	Double expected = sequence.stream().collect(averagingDouble(x -> x));
 
 	AtomicLong count = new AtomicLong();
 	Double average = sequence.stream().reduce(0D, (result, element) -> result += element / count.incrementAndGet() - result / count.get());
@@ -238,7 +236,7 @@ public class StreamsTest {
 
 	// Verify that list contains all the elements
 	Assert.assertThat(list, hasSize(size));
-	Assert.assertThat(list, Matchers.containsInAnyOrder(IntStream.rangeClosed(1, size).boxed().toArray(Integer[]::new)));
+	Assert.assertThat(list, containsInAnyOrder(IntStream.rangeClosed(1, size).boxed().toArray(Integer[]::new)));
     }
 
     /**
@@ -261,7 +259,7 @@ public class StreamsTest {
      */
     @Test
     public void test13() {
-	ConcurrentMap<Integer, Long> lengths = Stream.of(WORDS).parallel().collect(Collectors.groupingByConcurrent(String::length, Collectors.counting()));
+	ConcurrentMap<Integer, Long> lengths = Stream.of(WORDS).parallel().collect(groupingByConcurrent(String::length, counting()));
 	Assert.assertThat(lengths.get(3), is(143619L));
     }
 
